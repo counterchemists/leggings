@@ -9,16 +9,17 @@ int[] selectedChannels = { 1, 2 }; // LEFT, RIGHT
 //int[] selectedChannels = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
 
 OscP5 oscP5;
-float[] analogInputs = new float[16];
+float[] analogInputs = new float[2];
 float[] previousYPos = new float[selectedChannels.length];
 float xPos = 0;
 int previousWidth, previousHeigth;  // used to detect window resize
 
 float minLeft = 0;
-float minRight = (1 << 13); // 2**13 ? TODO: TEST!!
+float minRight = (1 << 13);
 float maxLeft = minLeft;
 float maxRight = maxLeft;
 
+int debounceTime = 1000; // ms
 int timestamp = 0;
 
 
@@ -48,11 +49,12 @@ void draw() {
 
 
 void oscilloscope() {
+  float graphHeight = height / selectedChannels.length;
+
   // Trace analogue input values
   strokeWeight(1);  // trace width
   stroke(255);      // trace colour
   for (int i = 0; i < selectedChannels.length; i++) {
-    float graphHeight = height / selectedChannels.length;
     float yPos = map(analogInputs[selectedChannels[i] - 1], 0, 1, i * graphHeight + graphHeight, i * graphHeight);
     line(xPos, previousYPos[i], xPos+1, yPos);
     previousYPos[i] = yPos;
@@ -75,11 +77,10 @@ void drawBackground() {
     float graphHeight = height / selectedChannels.length;
 
     // Different rectangle border and fill colour for alternate graphs
-    if(i % 2 == 0) {
+    if (i % 2 == 0) {
       stroke(0);
       fill(0);
-    }
-    else {
+    } else {
       stroke(32);
       fill(32);
     }
@@ -101,7 +102,7 @@ void oscEvent(OscMessage theOscMessage) {
 
   // Analogue input values
   if (addrPattern.equals("/inputs/analogue")) {
-    for(int i = 0; i < analogInputs.length; i ++) {
+    for (int i = 0; i < analogInputs.length; i ++) {
       //analogInputs[i] = theOscMessage.get(i).intValue();// DIGITAL!!!!
       analogInputs[i] = theOscMessage.get(i).floatValue();
     }
@@ -118,16 +119,15 @@ void type(int i) {
 void handleControls() {
   float thresholdLeft = (maxLeft - minLeft) / 2.; // TODO: test!
   float thresholdRight = (maxRight - minRight) / 2.; // TODO: test!
-  int debounceTime = 100; // ms
 
   if (millis() - timestamp > debounceTime) {
-      if ( analogInputs[selectedChannels[0] - 1] > thresholdLeft ) {
-          type(KeyEvent.VK_LEFT);
-          timestamp = millis();
-      }
-      if ( analogInputs[selectedChannels[0] - 1] > thresholdLeft ) {
-          type(KeyEvent.VK_LEFT);
-          timestamp = millis();
-      }
+    if ( analogInputs[selectedChannels[0] - 1] < thresholdRight ) {
+      type(KeyEvent.VK_RIGHT);
+      timestamp = millis();
+    }
+    if ( analogInputs[selectedChannels[1] - 1] < thresholdLeft ) {
+      type(KeyEvent.VK_LEFT);
+      timestamp = millis();
+    }
   }
 }
