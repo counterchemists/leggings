@@ -19,6 +19,13 @@ float minRight = (1 << 13);
 float maxLeft = minLeft;
 float maxRight = maxLeft;
 
+/////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+float thresholdLeft = .5; 
+float thresholdRight = .5;
+/////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+
 int debounceTime = 1000; // ms
 int timestamp = 0;
 
@@ -50,6 +57,15 @@ void draw() {
 
 void oscilloscope() {
   float graphHeight = height / selectedChannels.length;
+
+  //threshold:
+  stroke(255, 0, 0);
+  float thresholdRightLine = map(thresholdLeft, 0, 1, 0, graphHeight);
+  float thresholdLeftLine = map(thresholdRight, 0, 1, graphHeight, 2*graphHeight);
+  //print(thresholdLeftLine);
+  line(0, thresholdRightLine, width, thresholdRightLine);
+  line(0, thresholdLeftLine, width, thresholdLeftLine);
+  
 
   // Trace analogue input values
   strokeWeight(1);  // trace width
@@ -117,9 +133,6 @@ void type(int i) {
 
 
 void handleControls() {
-  float thresholdLeft = (maxLeft - minLeft) / 2.; // TODO: test!
-  float thresholdRight = (maxRight - minRight) / 2.; // TODO: test!
-
   if (millis() - timestamp > debounceTime) {
     if ( analogInputs[selectedChannels[0] - 1] < thresholdRight ) {
       type(KeyEvent.VK_RIGHT);
