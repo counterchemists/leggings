@@ -41,6 +41,18 @@ http://processing.org
     leggings.pde
 
 
+## Alternative
+
+If a wireless control breaks, it's always good to have a connected version.
+The teensy code in the following folder does exactly that:
+
+    teensy_alternative/
+
+To use it, the following page should help:
+
+https://www.pjrc.com/teensy/td_keyboard.html
+
+
 ## Inspirations
 
 - X-OSC oscilloscope by Sebastian Madgwick:
